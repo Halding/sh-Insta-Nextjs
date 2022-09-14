@@ -8,7 +8,9 @@
   "dependencies": {
     "@heroicons/react": "^2.0.10",
     "faker": "^6.6.6",
+    "firebase": "^9.9.3",
     "next": "latest",
+    "next-auth": "^4.10.3",
     "react": "18.1.0",
     "react-dom": "18.1.0",
     "tailwind-scrollbar-hide": "^1.1.7"
