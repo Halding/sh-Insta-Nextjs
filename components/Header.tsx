@@ -12,14 +12,19 @@ import {
     PaperAirplaneIcon,
 } from "@heroicons/react/24/outline";
 import {signIn, signOut, useSession} from "next-auth/react";
+import {modalState} from "../atoms/modalAtom"
+import {useRouter} from "next/router";
+import {useRecoilState, useRecoilValue} from "recoil";
 
 
 
 
 function Header() {
     const {data : session} = useSession();
+    const [open, setOpen] = useRecoilState(modalState)
+    const openValue = useRecoilValue(modalState)
+    const router = useRouter();
 
-    console.log(session)
 
     return (
 
@@ -29,14 +34,14 @@ function Header() {
                 {/*Left*/}
 
 
-                <div className="hidden lg:inline-grid relative w-24 cursor-pointer">
+                <div onClick={() => router.push('/')} className="hidden lg:inline-grid relative w-24 cursor-pointer">
                     <Image src="https://links.papareact.com/ocw"
                            layout="fill"
                            objectFit="contain"
                     ></Image>
                 </div>
 
-                <div className="relative w-10 lg:hidden flex-shrink-0 cursor-pointer">
+                <div onClick={() => router.push('/')} className="relative w-10 lg:hidden flex-shrink-0 cursor-pointer">
                     <Image src="https://links.papareact.com/jjm"
                            layout="fill"
                            objectFit="contain"
@@ -62,7 +67,7 @@ function Header() {
 
 
                 <div className="flex items-center justify-end gap-4">
-                    <HomeIcon className="navBtn"></HomeIcon>
+                    <HomeIcon onClick={() => router.push('/')} className="navBtn"></HomeIcon>
                     <Bars3Icon className="md:hidden h-6 cursor-pointer"></Bars3Icon>
 
                     {session ? (
@@ -75,14 +80,14 @@ function Header() {
                                 </div>
                             </div>
 
-                        <PlusCircleIcon className="navBtn"/>
+                        <PlusCircleIcon onClick={() => setOpen(true)} className="navBtn"/>
                         <UserGroupIcon className="navBtn"/>
                         <HeartIcon className="navBtn"/>
 
                         <img
                             onClick={() => signOut({callbackUrl: "/auth/signin"})}
                         className="rounded-full h-10 w-10 cursor-pointer"
-                        src={session.user?.image as string}
+                        src={session.user?.image! as string}
                         ></img>
                         </>
                     ): (

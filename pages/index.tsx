@@ -3,6 +3,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import Header from "../components/Header";
 import Feed from "../components/Feed";
+import Modal from "../components/Modal";
 
 const Home: NextPage = () => {
     return (
@@ -14,7 +15,7 @@ const Home: NextPage = () => {
             <Header></Header>
 
             <Feed></Feed>
-            {/*Modal*/}
+            <Modal></Modal>
 
 
         </div>

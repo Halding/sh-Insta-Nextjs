@@ -15,7 +15,7 @@ export type Suggestion ={
 
 function Stories() {
     const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-    const { data: session} = useSession()
+    const { data: session } = useSession()
 
     useEffect(() => {
         const suggestionsList: Suggestion[] = [...Array(30)].map((_, i) => (
@@ -34,7 +34,7 @@ function Stories() {
         <div className="flex space-x-2 p-6 mt-24
          bg-white border-gray-200 border rounded-sm overflow-x-scroll scrollbar-thin scrollbar-thumb-black">
             {session && (
-                <Story img={session.user?.image as string} username={session.user?.name as string} />
+                <Story img={session.user?.image! as string} username={session.user?.name as string} />
             )}
 
                 {suggestions.map((user) =>(

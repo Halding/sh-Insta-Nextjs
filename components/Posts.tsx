@@ -1,7 +1,10 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Post from "./Post";
+import {collection, onSnapshot, orderBy, query} from "@firebase/firestore";
+import {db} from "../firebase";
 
-export type DataDummy = {
+export type PostsData = {
+    key: string
     id: number
     username: string
     userImg: string
@@ -9,32 +12,30 @@ export type DataDummy = {
     caption: string
 }
 
-const DUMMY_DATA = [
-    {
-        id: 123,
-        username: "DJ John",
-        userImg: "https://links.papareact.com/3ke",
-        img: "https://i.postimg.cc/wT9xZtC7/IMG-20210503-220304.jpg",
-        caption: "this is dope"
-    },
-    {
-        id: 123,
-        username: "DJ John",
-        userImg: "https://links.papareact.com/3ke",
-        img: "https://links.papareact.com/3ke",
-        caption: "this is dope"
-    },
-];
 
 function Posts() {
+    const [posts, setPosts] = useState([])
+
+    useEffect(
+        () =>
+            onSnapshot(
+                query(collection(db, "posts"), orderBy("timestamp", "desc")),
+                (snapshot) => {
+                    return setPosts(snapshot.docs);
+                }), [db]);
+
+    console.log(posts)
+
     return (
         <div>
-            {DUMMY_DATA.map((post) => (
-                <Post key={post.id} id={post.id}
-                username={post.username}
-                userImg={post.userImg}
-                img={post.img}
-                caption={post.caption}/>
+            {posts.map((post) => (
+                <Post
+                    key={post.id}
+                    id={post.id}
+                    username={post.data().username}
+                    userImg={post.data().profileImg}
+                    img={post.data().image}
+                    caption={post.data().caption}/>
             ))}
 
         </div>
