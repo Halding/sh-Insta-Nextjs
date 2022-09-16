@@ -4,22 +4,33 @@ import {
     BookmarkIcon,
     ChatBubbleLeftIcon,
     EllipsisHorizontalIcon,
-    HeartIcon,
     PaperAirplaneIcon,
     FaceSmileIcon,
-    HandThumbUpIcon
-
+    HeartIcon
 } from "@heroicons/react/24/outline";
 import {HeartIcon as HeartIconFilled} from "@heroicons/react/24/solid"
 import {PostsData} from "./Posts";
 import {useSession} from "next-auth/react";
-import {addDoc, collection, onSnapshot, orderBy, query, serverTimestamp} from "@firebase/firestore";
+import {
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    onSnapshot,
+    orderBy,
+    query,
+    serverTimestamp,
+    setDoc
+} from "@firebase/firestore";
 import {db} from "../firebase";
+import Moment from "react-moment";
 
 function Post({id, username, userImg, img, caption}: PostsData) {
     const {data: session} = useSession();
-    const [comment, setComment] = useState();
-    const [comments, setComments] = useState();
+    const [comment, setComment] = useState("");
+    const [comments, setComments] = useState([]);
+    const [likes, setLikes] = useState([]);
+    const [hasLiked, setHasLiked] = useState(false);
 
     useEffect(
         () =>
@@ -27,7 +38,34 @@ function Post({id, username, userImg, img, caption}: PostsData) {
                 query(collection(db, "posts", id, "comments"), orderBy("timestamp", "desc")),
                 (snapshot) => {
                     return setComments(snapshot.docs);
-                }), [db]);
+                }), [db, id]);
+
+    useEffect(
+        () =>
+            onSnapshot(collection(db,"posts", id, "likes"),(snapshot) =>
+            setLikes(snapshot.docs)
+            ),
+        [db, id]
+    );
+
+    useEffect(() =>
+        setHasLiked(
+            likes.findIndex((like) => like.id === session?.user?.name) !== -1
+        ),
+     [likes]
+    );
+
+    const likePost = async () => {
+        if (hasLiked) {
+            console.log("testtttt")
+            await deleteDoc(doc(db, "posts", id, "likes", session?.user?.name));
+        } else {
+        await setDoc(doc(db,"posts", id, "likes", session?.user?.name), {
+            username: session?.user?.name,
+        });
+
+        }
+    };
 
 
     const sendComment = async (e: any) => {
@@ -64,7 +102,10 @@ function Post({id, username, userImg, img, caption}: PostsData) {
 
                 <div className="flex justify-between px-4 py-4">
                     <div className="flex space-x-4">
-                        <HeartIconFilled className="btnIcon text-red-600"/>
+                        {hasLiked ? (<HeartIconFilled onClick={likePost} className="btnIcon text-red-600"/>)
+                            : (
+                            <HeartIcon onClick={likePost} className="btnIcon"/>
+                        )}
                         <ChatBubbleLeftIcon className="btnIcon"/>
                         <PaperAirplaneIcon className="btnIcon"/>
                     </div>
@@ -76,6 +117,9 @@ function Post({id, username, userImg, img, caption}: PostsData) {
             {/*    captions */}
             <div>
                 <p className="p-5 truncate">
+                    {likes.length > 0 && (
+                        <p className="font-bold mb-1">{likes.length} likes</p>
+                    )}
                     <span className="font-bold mr-1">{username}: </span>
                     {caption}
                 </p>
@@ -98,6 +142,10 @@ function Post({id, username, userImg, img, caption}: PostsData) {
                                 </span>
                                 {comment.data().comment}
                             </p>
+
+                            <Moment fromNow className="pr-5 text-xs">
+                                {comment.data().timestamp?.toDate()}
+                            </Moment>
                         </div>
                     ))}
                 </div>
